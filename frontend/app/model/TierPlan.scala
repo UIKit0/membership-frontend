@@ -18,7 +18,7 @@ object FriendTierPlan extends TierPlan {
 }
 
 case class PaidTierPlan(tier: Tier, annual: Boolean) extends TierPlan {
-  assert(tier >= Tier.Partner)
+  assert(tier >= Tier.Supporter)
 }
 
 object StaffPlan extends ProductRatePlan {

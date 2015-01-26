@@ -47,8 +47,6 @@ object Benefits {
     "complim_items", "unique_experiences", "plus_1_guest", "membership_card",
     "live_stream", "digital_digest", "video_highlights")
 
-  val friendsWithBenefitsLimited = benefitsFilter("book_tickets", "digital_digest", "video_highlights")
-
   var partnerWithBenefitsLimited = benefitsFilter("discount", "discount_masterclasses", "early_booking",
     "plus_1_guest", "live_stream", "membership_card")
 
@@ -56,6 +54,9 @@ object Benefits {
 
   val friendBenefits = Benefits("Benefits", friendsWithBenefits,
     None, "Become a Friend", "Stay up to date and book tickets to Guardian Live events")
+
+  val supporterBenefits = Benefits("Friend benefits, plus…", friendsWithBenefits,
+    Some(Pricing(45, 5)), "Become a Supporter", "Do some sort of copy for this")
 
   val partnerBenefits = Benefits("Friend benefits, plus…", partnerWithBenefits,
     Some(Pricing(135, 15)), "Become a Partner", "Get closer to the stories and experience the " +
@@ -67,12 +68,14 @@ object Benefits {
 
   val details = Map[Tier, Benefits](
     Tier.Friend -> friendBenefits,
+    Tier.Supporter -> supporterBenefits,
     Tier.Partner -> partnerBenefits,
     Tier.Patron -> patronBenefits
   )
 
   val detailsLimited = Map[Tier, Seq[BenefitItem]](
-    Tier.Friend -> friendsWithBenefitsLimited,
+    Tier.Friend -> friendsWithBenefits,
+    Tier.Supporter -> friendsWithBenefits,
     Tier.Partner -> partnerWithBenefitsLimited,
     Tier.Patron -> patronWithBenefitsLimited
   )
