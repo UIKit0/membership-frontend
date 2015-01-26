@@ -134,9 +134,10 @@ object Config {
       backendConf.getString("zuora.api.url"),
       username = backendConf.getString("zuora.api.username"),
       password = backendConf.getString("zuora.api.password"),
-        Map(FriendTierPlan -> backendConf.getString(s"zuora.api.friend"),
-          StaffPlan -> backendConf.getString(s"zuora.api.staff")) ++
-          plansFor(Tier.Partner) ++ plansFor(Tier.Patron)
+        Map(
+          FriendTierPlan -> backendConf.getString(s"zuora.api.friend"),
+          StaffPlan -> backendConf.getString(s"zuora.api.staff")
+        ) ++ plansFor(Tier.Supporter) ++ plansFor(Tier.Partner) ++ plansFor(Tier.Patron)
       )
 
     TouchpointBackendConfig(salesforceConfig, stripeApiConfig, zuoraApiConfig)
@@ -152,6 +153,7 @@ object Config {
 
   val facebookJoinerConversionTrackingId = Map[Tier, String](
     Tier.Friend -> config.getString("facebook.joiner.conversion.friend"),
+    Tier.Supporter -> config.getString("facebook.joiner.conversion.supporter"),
     Tier.Partner -> config.getString("facebook.joiner.conversion.partner"),
     Tier.Patron -> config.getString("facebook.joiner.conversion.patron")
   )
@@ -160,6 +162,7 @@ object Config {
 
   val googleAdwordsJoinerConversionLabel = Map[Tier, String](
     Tier.Friend -> config.getString("google.adwords.joiner.conversion.friend"),
+    Tier.Supporter -> config.getString("google.adwords.joiner.conversion.supporter"),
     Tier.Partner -> config.getString("google.adwords.joiner.conversion.partner"),
     Tier.Patron -> config.getString("google.adwords.joiner.conversion.patron")
   )
