@@ -151,21 +151,21 @@ object Config {
 
   val googleAnalyticsTrackingId = config.getString("google.analytics.tracking.id")
 
-  val facebookJoinerConversionTrackingId = Map[Tier, String](
-    Tier.Friend -> config.getString("facebook.joiner.conversion.friend"),
-    Tier.Supporter -> config.getString("facebook.joiner.conversion.supporter"),
-    Tier.Partner -> config.getString("facebook.joiner.conversion.partner"),
-    Tier.Patron -> config.getString("facebook.joiner.conversion.patron")
-  )
+  def facebookJoinerConversionTrackingId(tier: Tier) = tier match {
+    case Tier.Friend => config.getString("facebook.joiner.conversion.friend")
+    case Tier.Supporter => config.getString("facebook.joiner.conversion.supporter")
+    case Tier.Partner => config.getString("facebook.joiner.conversion.partner")
+    case Tier.Patron => config.getString("facebook.joiner.conversion.patron")
+  }
 
   val facebookEventTicketSaleTrackingId = config.getString("facebook.ticket.purchase")
 
-  val googleAdwordsJoinerConversionLabel = Map[Tier, String](
-    Tier.Friend -> config.getString("google.adwords.joiner.conversion.friend"),
-    Tier.Supporter -> config.getString("google.adwords.joiner.conversion.supporter"),
-    Tier.Partner -> config.getString("google.adwords.joiner.conversion.partner"),
-    Tier.Patron -> config.getString("google.adwords.joiner.conversion.patron")
-  )
+  def googleAdwordsJoinerConversionLabel(tier: Tier) = tier match {
+    case Tier.Friend => config.getString("google.adwords.joiner.conversion.friend")
+    case Tier.Supporter => config.getString("google.adwords.joiner.conversion.supporter")
+    case Tier.Partner => config.getString("google.adwords.joiner.conversion.partner")
+    case Tier.Patron => config.getString("google.adwords.joiner.conversion.patron")
+  }
 
   val corsAllowOrigin = config.getString("cors.allow.origin")
 

@@ -66,18 +66,17 @@ object Benefits {
     Some(Pricing(540, 60)), "Become a Patron", "Support the Guardian’s mission of promoting the " +
       "open exchange of ideas, with a backstage pass to the Guardian")
 
-  val details = Map[Tier, Benefits](
-    Tier.Friend -> friendBenefits,
-    Tier.Supporter -> supporterBenefits,
-    Tier.Partner -> partnerBenefits,
-    Tier.Patron -> patronBenefits
-  )
+  def details(tier: Tier) = tier match {
+    case Tier.Friend => friendBenefits
+    case Tier.Supporter => supporterBenefits
+    case Tier.Partner => partnerBenefits
+    case Tier.Patron => patronBenefits
+  }
 
-  val detailsLimited = Map[Tier, Seq[BenefitItem]](
-    Tier.Friend -> friendsWithBenefits,
-    Tier.Supporter -> friendsWithBenefits,
-    Tier.Partner -> partnerWithBenefitsLimited,
-    Tier.Patron -> patronWithBenefitsLimited
-  )
-
+  def detailsLimited(tier: Tier) = tier match {
+    case Tier.Friend => friendsWithBenefits
+    case Tier.Supporter => friendsWithBenefits
+    case Tier.Partner => partnerWithBenefitsLimited
+    case Tier.Patron => patronWithBenefitsLimited
+  }
 }
