@@ -5,23 +5,23 @@ import org.openqa.selenium.{By, WebDriver}
 
 class EventPage(driver: WebDriver) extends BaseMembershipPage(driver) {
 
-  private def eventLocationSpan = driver.findElement(By.cssSelector(".event-content__venue-name"))
+  private def eventLocationSpan = driver.findElement(By.cssSelector(".stat-item__second.copy"))
 
-  private def eventTimeDiv = driver.findElement(By.cssSelector(".event-content__time"))
+  private def eventTimeDiv = driver.findElement(By.cssSelector(".stat-item__second>span"))
 
-  private def eventSalesEndSpan = driver.findElement(By.cssSelector(".sale-dates__item>time"))
+  private def eventSalesEndSpan = driver.findElement(By.xpath("//*[contains(., \"Sale ends\")]/time"))
 
-  private def eventPriceSpan = driver.findElement(By.cssSelector(".event-ticket__price-amount"))
+  private def eventPriceSpan = driver.findElement(By.cssSelector(".price-info-inline__value.js-event-price-value"))
+  // TODO add hooks on the template so we can avoid these nasty locators
+  private def discountedEventPriceSpan = driver.findElement(By.xpath(".//*[@id='container']/div[2]/div/div[2]/div[1]/div/div/div[2]/span[1]"))
 
-  private def discountedEventPriceSpan = driver.findElement(By.cssSelector(".event-ticket__trail-tag"))
+  private def eventDescriptionDiv = driver.findElement(By.cssSelector(".event__description.copy"))
 
-  private def eventDescriptionDiv = driver.findElement(By.cssSelector(".event-content__body"))
-
-  private def buyButton = driver.findElement(By.cssSelector(".event-ticket__action .action"))
+  private def buyButton = driver.findElement(By.cssSelector(".js-ticket-cta.action.action--booking"))
 
   private def eventName = driver.findElement(By.cssSelector(".event-masthead__name"))
 
-  private def originalPriceSpan = driver.findElement(By.cssSelector(".event-ticket__price-amount"))
+  private def originalPriceSpan = driver.findElement(By.xpath(".//*[@id='container']/div[2]/div/div[2]/div[1]/div/div/div[1]"))
 
   def getEventLocation: String = eventLocationSpan.getText
 

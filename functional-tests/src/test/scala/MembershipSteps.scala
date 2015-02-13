@@ -1,11 +1,11 @@
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
-import java.util.{Properties, Date}
+import java.util.{Random, Date, Properties}
 
 import com.gu.automation.support.{Config, TestLogger}
 import com.gu.identity.testing.usernames.{Encoder, TestUsernames}
 import com.gu.membership.pages._
-import org.openqa.selenium.{JavascriptExecutor, Cookie, WebDriver}
+import org.openqa.selenium.{Cookie, JavascriptExecutor, WebDriver}
 
 case class MembershipSteps(implicit driver: WebDriver, logger: TestLogger) {
 
@@ -344,8 +344,8 @@ case class MembershipSteps(implicit driver: WebDriver, logger: TestLogger) {
     this
   }
 
-  def IDontSeeTheMembershipTab = {
-    Assert.assert(new IdentityEditPage(driver).isMembershipTabVisible, false, "Membership tab should not be visible")
+  def theMembershipTabIsAnUpsell = {
+    Assert.assert(new IdentityEditPage(driver).isAnUpsell, true, "Membership tab is an upsell")
     this
   }
 
@@ -498,7 +498,10 @@ object CookieHandler {
 
     val usernames = TestUsernames(Encoder.withSecret(secret))
 
-    val user = usernames.generate()
+    val salt: Array[Byte] = new Array[Byte](2)
+
+    new Random().nextBytes(salt)
+    val user = usernames.generate(salt)
     val password = scala.util.Random.alphanumeric.take(10).mkString
     val email = user + "@testme.com"
     new RegisterPage(driver).enterFirstName(user).enterLastName(user).enterEmail(email)

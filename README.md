@@ -96,6 +96,11 @@ idrun
 ## Compile front-end files
 + $ grunt compile
 
+# Pattern Library
+
+A library of common patterns used accross the membership site is available at [membership.theguardian.com/patterns](https://membership.theguardian.com/patterns)
+
+When building new components break them down into fragments and include them in the pattern library.
 
 # Images
 
@@ -106,11 +111,6 @@ Running the grunt task `shell:svgencode` will automatically base64 encode files 
 ### Adding new SVGs
 
 When adding new SVGs to the `assets/svgs` directory run the file through [SVGO](https://github.com/svg/svgo) first to optimise it. For Mac users there is an app for doing this: [SVGO GUI](https://github.com/svg/svgo-gui)
-
-## Asset hashing
-
-By default all of the images within ```assets/images/``` will have an asset hash applied to them when the Grunt compile task is ran in production mode. If you wish to have assets without an asset hash please place them within ```assets/images/noAssetHash```. These images will have a cache lifetime set by the server and you will have to manually bust the cache by changing the filename.
-
 
 # Updating AMIs
 We use [packer](http://www.packer.io) to create new AMIs, you can download it here: http://www.packer.io/downloads.html. To create an AMI, you must set `AWS_ACCESS_KEY` and `AWS_SECRET_KEY` as described above.
@@ -149,17 +149,77 @@ Note that we read the shared secret for these from the `identity.test.users.secr
 
 For the Membership project, we put both `DEV` and `PROD` credentials in `membership-keys.conf` files in the private S3 bucket `membership-private`, and if private credentials need adding or updating, they need to be updated there in S3.
 
-You can download and update credentials like this 
+You can download and update credentials like this
 
     aws s3 cp s3://membership-private/DEV/membership-keys.conf /etc/gu
     aws s3 cp /etc/gu/membership-keys.conf s3://membership-private/DEV/
-    
+
 For a reminder on why we do this, here's @tackley on the subject:
 
->NEVER commit access keys, passwords or other sensitive credentials to any source code repository*. 
+>NEVER commit access keys, passwords or other sensitive credentials to any source code repository*.
 
 >That's especially true for public repos, but also applies to any private repos. (Why? 1. it's easy to make it public and 2. every person who ever worked on your project almost certainly has a copy of your repo somewhere. It's too easy for a subsequently-disaffected individual to take advantage of this.)
 
 >For AWS access keys, always prefer to use instance profiles instead.
 
 >For other credentials, either use websys's puppet based config distribution (for websys managed machines) or put them in a configuration store such as DynamoDB or a private S3 bucket.
+
+## Troubleshooting
+
+###NPM Hangs or doesn't download all dependencies
+
+If you run `./setup.sh` and npm doesn't install all of its dependencies it may help to do the following
+1. `cd ./frontend`
+2. Remove node folder `rm -rf node_modules`
+3. Run `npm cache clean`
+4. Run `./setup.sh` to install project-specific client-side dependencies.
+
+###NPM "EACCES"
+
+If you get errors like this on `npm install`
+```
+npm WARN locking Error: EACCES, open '/Users/jduffell/.npm/_locks/karma-requirejs-4becac899d6c8f35.lock'
+```
+
+Sometimes when you install npm, it ends up owned by root (but in your home
+directory).
+
+Check that you own your own .npm directory `ls -ld ~/.npm`
+
+If it is owned by root, then take ownership of it
+`sudo chown -R username:username ~/.npm`
+
+
+###File handles - "Too many files open"
+
+You may run into a "too many files open" error during
+compilation or reloading. You can find out how many file handles you are
+allowed per process by running `ulimit -n`. This can be quite low, e.g. 1024 on linux or 256 on Mac
+
+####Linux
+
+To increase the limit do the following (instructions from Ubuntu 12.10)...
+
+In the file `/etc/security/limits.conf` add the following two lines
+```
+*  soft  nofile 20000
+*  hard  nofile 65000
+```
+
+And in the file `/etc/pam.d/common-session` add the following line.
+```
+session required pam_limits.so
+```
+
+Restart the machine.
+
+For more info see http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/
+
+####Mac
+
+* Edit your `~/.bash-profile` file
+* add the following line: `ulimit -n 1024`
+* save and close the file
+* back at the command prompt enter: `source .bash_profile` and hit return.
+
+Now you should be able to compile and run. Yay.

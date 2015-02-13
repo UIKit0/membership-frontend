@@ -1,32 +1,37 @@
 @import org.joda.time.DateTime
 @import configuration.Config
+@import views.support.Asset
+
 <footer class="global-footer u-cf hidden-print" data-component="footer">
     <div class="global-footer__primary">
         <div id="footer-nav" class="l-constrained">
             <div class="global-footer__brand">
+
+                @* Footer logo *@
                 <a href="/" class="global-footer__logo hidden-mobile">
                     <span class="u-h">@Config.siteTitle</span>
-                    <i class="icon-membership_beta_mobile"></i>
+                    <img src="@Asset.at("images/logos/membership-logo-small.svg")" alt="@Config.siteTitle" class="responsive-image">
                 </a>
-                <a class="global-footer__top no-underline" href="#top">
-                    <span class="control">
-                        <span class="control__icon">
-                            <i class="i icon-arrow-up-black"></i>
-                        </span>
+
+                @* Back to top *@
+                <a class="to-top no-underline" href="#top">
+                    <span class="to-top__item icon-holder icon-holder--large icon-holder--neutral">
+                        @fragments.inlineIcon("arrow-up")
                     </span>
-                    <span class="control__info case--lower no-underline--override">Back to top</span>
+                    <span class="to-top__item to-top__label no-underline--override">Back to top</span>
                 </a>
+
             </div>
         </div>
     </div>
     <div class="global-footer__secondary l-constrained" role="contentinfo">
         <ul class="colophon u-cf case--lower">
-            <li class="colophon__item"><a data-link-name="help" href="/help">Help</a></li>
-            <li class="colophon__item"><a data-link-name="contact" href="@Config.guardianContactUsUrl">Contact us</a></li>
-            <li class="colophon__item"><a data-link-name="feedback" href="/feedback">Feedback</a></li>
-            <li class="colophon__item"><a data-link-name="terms" href="@Config.guardianMembershipTermsUrl">Terms &amp; conditions</a></li>
-            <li class="colophon__item"><a data-link-name="privacy" href="@Config.guardianPrivacyUrl">Privacy policy</a></li>
-            <li class="colophon__item"><a data-link-name="cookie" href="http://www.theguardian.com/info/cookies">Cookie policy</a></li>
+            <li class="colophon__item"><a href="/help">Help</a></li>
+            <li class="colophon__item"><a href="@Config.guardianContactUsUrl">Contact us</a></li>
+            <li class="colophon__item"><a href="/feedback">Feedback</a></li>
+            <li class="colophon__item"><a href="@Config.guardianMembershipTermsUrl">Terms &amp; conditions</a></li>
+            <li class="colophon__item"><a href="@Config.guardianPrivacyUrl">Privacy policy</a></li>
+            <li class="colophon__item"><a href="http://www.theguardian.com/info/cookies">Cookie policy</a></li>
         </ul>
         <div class="global-footer__misc">
             <div class="really-serious-copyright">&copy; @{new DateTime().year.getAsText} Guardian News and Media Limited or its affiliated companies. All rights reserved. Build #@app.BuildInfo.buildNumber</div>

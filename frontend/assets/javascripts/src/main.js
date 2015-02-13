@@ -1,52 +1,46 @@
 require([
-    'src/utils/analytics/setup',
-    'src/utils/cookieRefresh',
     'ajax',
-    'src/modules/tier/JoinFree',
-    'src/modules/info/Feedback',
-    'src/modules/tier/PaidForm',
-    'src/modules/tier/StaffForm',
+    'src/utils/analytics/setup',
+    'src/modules/metrics',
     'src/modules/events/Cta',
     'src/modules/events/filter',
-    'src/modules/events/toggle',
     'src/modules/slideshow',
     'src/modules/images',
+    'src/modules/toggle',
     'src/modules/sticky',
     'src/modules/Header',
     'src/modules/navigation',
     'src/modules/UserDetails',
     'src/modules/tier/choose',
     'src/modules/events/eventPriceEnhance',
-    'src/modules/tier/Thankyou',
     'src/modules/patterns',
     'src/utils/modal',
     'src/utils/form/processSubmit',
+    'src/modules/form',
+    'src/modules/metrics',
     // Add new dependencies ABOVE this
     'raven',
     'modernizr'
 ], function(
-    analytics,
-    cookieRefresh,
     ajax,
-    JoinFree,
-    FeedbackForm,
-    PaidForm,
-    StaffForm,
+    analytics,
+    metrics,
     Cta,
     filter,
-    toggle,
     slideshow,
     images,
+    toggle,
     sticky,
     Header,
     navigation,
     UserDetails,
     choose,
     eventPriceEnhance,
-    Thankyou,
     modal,
     patterns,
-    processSubmit
+    processSubmit,
+    form,
+    metrics
 ) {
     'use strict';
 
@@ -59,18 +53,15 @@ require([
 
     ajax.init({page: {ajaxUrl: ''}});
 
-    // TODO: Remove this, see module
-    cookieRefresh.init();
-
     analytics.init();
+    metrics.init();
 
     // Global
     toggle.init();
     images.init();
     slideshow.init();
     sticky.init();
-    var header = new Header();
-    header.init();
+    (new Header()).init();
     navigation.init();
     (new UserDetails()).init();
 
@@ -81,19 +72,18 @@ require([
 
     // Join
     choose.init();
-    (new JoinFree()).init();
-    (new PaidForm()).init();
-    (new StaffForm()).init();
-    (new Thankyou()).init(header);
-    processSubmit.init();
 
-    // Feedback
-    (new FeedbackForm()).init();
+    // Forms
+    form.init();
+    processSubmit.init();
 
     // Modal
     modal.init();
 
     // Pattern library
     patterns.init();
+
+    // Metrics
+    metrics.init();
 
 });

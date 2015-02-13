@@ -2,6 +2,34 @@
    Tones
    ========================================================================== */
 
+/* Brand
+   ========================================================================== */
+
+.tone-brand,
+.tone-trans-brand {
+    color: $c-neutral1;
+    background-color: $mem-brandBlue;
+}
+.tone-trans-brand {
+    background-color: transparentize($mem-brandBlue, .1);
+}
+
+/* Dark variant */
+.tone-brand-dark,
+.tone-trans-brand-dark {
+    color: $white;
+    background-color: $mem-brandBlueDark;
+    a {
+        border-bottom-color: transparentize($white, .5);
+    }
+    a:hover {
+        border-bottom-color: $white;
+    }
+}
+.tone-trans-brand-dark {
+    background-color: transparentize(darken($mem-brandBlueDark, 10%), .1);
+}
+
 /* Live
    ========================================================================== */
 
@@ -111,6 +139,9 @@
     color: $white;
     background-color: tone('friend');
 }
+.tone-color-friend {
+    color: tone('friend');
+}
 .tone-border-friend {
     border-color: tone('friend');
 }
@@ -121,6 +152,9 @@
 .tone-partner {
     background-color: tone('partner');
 }
+.tone-color-partner {
+    color: tone('partner');
+}
 .tone-border-partner {
     border-color: tone('partner');
 }
@@ -130,6 +164,9 @@
 
 .tone-patron {
     background-color: tone('patron');
+}
+.tone-color-patron {
+    color: tone('patron');
 }
 .tone-border-patron {
     border-color: tone('patron');

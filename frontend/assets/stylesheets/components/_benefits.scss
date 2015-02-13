@@ -22,49 +22,13 @@
     width: rem($gs-gutter * 2);
 }
 .benefit__title {
-    @include fs-header(1);
+    @include fs-headline(2);
+    font-weight: 500;
     padding: 0 0 rem($gs-baseline / 6) 0;
 }
 .benefit__copy {
     @include fs-textSans(3);
-}
-
-/* ==========================================================================
-   Benefits - Feature Listing
-   ========================================================================== */
-
-.benefits-featured {
-    margin-bottom: 0;
-}
-.benefits-featured__item {
-    margin-bottom: rem($gs-gutter/2);
-    .benefit {
-        border-top: 1px dotted $c-neutral3;
-        padding-top: rem($gs-gutter/2);
-    }
-}
-
-/* ==========================================================================
-   Benefits - Tier Listing
-   ========================================================================== */
-
-.benefits-tier {
-    overflow: hidden;
-    @include fs-bodyCopy(1);
-    margin-bottom: 0;
-}
-.benefits-tier__list {
-    @include mq(tablet) {
-        margin-top: -($gs-gutter/2);
-    }
-}
-.benefits-tier__item {
-    border-top: 1px dotted $c-neutral3;
-    padding-top: rem($gs-gutter/2);
-    @include mq(tablet) {
-        min-height: rem($gs-gutter * 6);
-    }
-
+    color: $c-neutral2;
 }
 
 /* ==========================================================================
@@ -135,6 +99,7 @@
 .benefits-title__first {
     float: left;
     width: rem($gs-gutter * 2 + 5);
+    color: $mem-brandBlue;
 }
 
 .benefits-title__second {

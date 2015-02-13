@@ -1,6 +1,5 @@
 @(
     title: String,
-    isBrochure: Boolean = false,
     htmlClass: String = "",
     pageInfo: model.PageInfo = model.PageInfo.default
 )(content: Html)
@@ -9,7 +8,6 @@
 @import views.support.Asset
 
 <!DOCTYPE html>
-
 <html class="js-off id--signed-out @htmlClass">
     <head>
         <meta charset="utf-8">
@@ -28,10 +26,6 @@
         <meta property="og:type" content="website"/>
         <meta property="fb:app_id" content="@Config.facebookAppId"/>
         <meta name="twitter:site" content="@@@Config.twitterUsername"/>
-        <meta name="twitter:app:name:iphone" content="@Config.twitterIphoneAppName"/>
-        <meta name="twitter:app:id:iphone" content="@Config.twitterIphoneAppId"/>
-        <meta name="twitter:app:name:googleplay" content="@Config.twitterGoogleplayAppName"/>
-        <meta name="twitter:app:id:googleplay" content="@Config.twitterGoogleplayAppId"/>
         <meta name="twitter:card" content="summary"/>
 
         <title>@(title + " | " + Config.siteTitle )</title>
@@ -65,16 +59,8 @@
         @* ===== Anything in here will be hidden for old browsers ===== *@
         <div class="container-global">
             @fragments.header()
-            <div class="page-side-margins" id="container">
-            @if(isBrochure != true) {
-                <div class="page-container">
-            }
-
+            <div class="l-side-margins" id="container">
                 @content
-
-            @if(isBrochure != true) {
-                </div>
-            }
             </div>
         </div>
 
@@ -84,5 +70,6 @@
         @fragments.javaScriptRequireJS()
 
         @fragments.analytics.googleRemarketing()
+        @fragments.analytics.userZoom()
     </body>
 </html>

@@ -1,8 +1,11 @@
 package model
 
 import com.gu.membership.salesforce.Tier
+import com.gu.membership.salesforce.Tier.{Partner, Patron}
 
 object Benefits {
+
+  val DiscountTicketTiers = Set[Tier](Partner, Patron)
 
   case class Benefits(
     leadin: String,
@@ -59,12 +62,10 @@ object Benefits {
     Some(Pricing(45, 5)), "Become a Supporter", "Do some sort of copy for this")
 
   val partnerBenefits = Benefits("Friend benefits, plus…", partnerWithBenefits,
-    Some(Pricing(135, 15)), "Become a Partner", "Get closer to the stories and experience the " +
-      "Guardian brought to life, with early booking and discounted tickets")
+    Some(Pricing(135, 15)), "Become a Partner", "Support the Guardian and experience it brought to life, with early booking and discounted tickets")
 
   val patronBenefits = Benefits("Partner benefits, plus…", patronWithBenefits,
-    Some(Pricing(540, 60)), "Become a Patron", "Support the Guardian’s mission of promoting the " +
-      "open exchange of ideas, with a backstage pass to the Guardian")
+    Some(Pricing(540, 60)), "Become a Patron", "Defend the Guardian’s independence and promote the open exchange of ideas, with a backstage pass to the Guardian")
 
   def details(tier: Tier) = tier match {
     case Tier.Friend => friendBenefits

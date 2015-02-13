@@ -4,7 +4,7 @@
 
 @main("Join Choose Tier", pageInfo=pageInfo) {
 
-    <main role="main" class="page-content">
+    <main role="main" class="page-content l-constrained">
 
         @fragments.page.pageHeader(eventOpt.fold("Choose a membership tier")(_.metadata.chooseTier.title))
 
@@ -30,7 +30,7 @@
                 <div class="page-section__supplementary">
                     <div class="aside aside--section">
                         <h4 class="aside__intro">You're buying tickets for:</h4>
-                        @fragments.event.itemSnapshot(event)
+                        @fragments.event.itemSnapshot(event, isStacked=true)
                     </div>
                 </div>
             }

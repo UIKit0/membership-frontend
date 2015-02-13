@@ -2,16 +2,18 @@ package services
 
 import com.gu.membership.salesforce.Member.Keys
 import com.gu.membership.salesforce._
+import com.gu.membership.stripe.Stripe
+import com.gu.membership.stripe.Stripe.Customer
 import com.gu.membership.util.Timing
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import configuration.Config
 import controllers.IdentityRequest
 import forms.MemberForm._
-
+import model.Benefits.DiscountTicketTiers
 import model.Eventbrite.EBCode
+import model.RichEvent.RichEvent
 import model.RichEvent._
-import model.Stripe.Customer
-import model.{IdMinimalUser, IdUser, PaidTierPlan, ProductRatePlan}
+import model._
 import monitoring.MemberMetrics
 import play.api.libs.json.Json
 import services.EventbriteService._
@@ -65,7 +67,7 @@ trait MemberService extends LazyLogging {
     ).collect { case (k, Some(v)) => Json.obj(k -> v) }
   }.reduce(_ ++ _)
 
-  def memberData(plan: ProductRatePlan, customerOpt: Option[Customer]) = Json.obj(
+  def memberData(plan: ProductRatePlan, customerOpt: Option[Stripe.Customer]) = Json.obj(
     Keys.TIER -> plan.salesforceTier
   ) ++ customerOpt.map { customer =>
     Json.obj(
@@ -109,25 +111,43 @@ trait MemberService extends LazyLogging {
     }
   }
 
-  def createDiscountForMember(member: Member, event: RichEvent): Future[Option[EBCode]] = {
-    member.tier match {
-      case Tier.Partner | Tier.Patron if event.hasMemberTicket =>
-          // Add a "salt" to make access codes different to discount codes
-          val code = DiscountCode.generate(s"A_${member.identityId}_${event.id}")
-          event.service.createOrGetAccessCode(event, code, event.memberTickets).map(Some(_))
-      case _ => Future.successful(None)
-    }
-  }
+  def createDiscountForMember(member: Member, event: RichEvent): Future[Option[EBCode]] = (for {
+      ticketing <- event.internalTicketing
+      benefit <- ticketing.memberDiscountOpt if DiscountTicketTiers.contains(member.tier)
+    } yield {
+      // Add a "salt" to make access codes different to discount codes
+      val code = DiscountCode.generate(s"A_${member.identityId}_${event.id}")
+      event.service.createOrGetAccessCode(event, code, ticketing.memberBenefitTickets).map(Some(_))
+    }).getOrElse(Future.successful(None))
 
-  // TODO: this currently only handles free -> paid
-  def upgradeSubscription(member: FreeMember, user: IdMinimalUser, newTier: Tier, form: PaidMemberChangeForm, identityRequest: IdentityRequest): Future[MemberId] = {
+  def upgradeFreeSubscription(freeMember: FreeMember, user: IdMinimalUser, newTier: Tier, form: FreeMemberChangeForm,
+                              identityRequest: IdentityRequest): Future[MemberId] = {
     val touchpointBackend = TouchpointBackend.forUser(user)
-    val newPaidPlan = PaidTierPlan(newTier, form.payment.annual)
+
     for {
       customer <- touchpointBackend.stripeService.Customer.create(user.id, form.payment.token)
-      paymentResult <- touchpointBackend.subscriptionService.createPaymentMethod(member, customer)
-      subscriptionResult <- touchpointBackend.subscriptionService.upgradeSubscription(member, newPaidPlan)
-      memberId <- touchpointBackend.memberRepository.upsert(member.identityId, memberData(newPaidPlan, Some(customer)))
+      paymentResult <- touchpointBackend.subscriptionService.createPaymentMethod(freeMember, customer)
+      memberId <- upgradeSubscription(freeMember, user, newTier, form, form.payment.annual, Some(customer), identityRequest)
+    } yield memberId
+  }
+
+  def upgradePaidSubscription(paidMember: PaidMember, user: IdMinimalUser, newTier: Tier, form: PaidMemberChangeForm,
+                              identityRequest: IdentityRequest): Future[MemberId] = {
+    for {
+      paymentSummary <- TouchpointBackend.forUser(user).subscriptionService.getPaymentSummary(paidMember)
+      memberId <- upgradeSubscription(paidMember, user, newTier, form, paymentSummary.current.annual, None, identityRequest)
+    } yield memberId
+
+  }
+
+  private def upgradeSubscription(member: Member, user: IdMinimalUser, newTier: Tier, form: MemberChangeForm,
+                                  annual: Boolean, customerOpt: Option[Customer], identityRequest: IdentityRequest): Future[MemberId] = {
+    val touchpointBackend = TouchpointBackend.forUser(user)
+    val newRatePlan = PaidTierPlan(newTier, annual)
+
+    for {
+      subscriptionResult <- touchpointBackend.subscriptionService.upgradeSubscription(member, newRatePlan)
+      memberId <- touchpointBackend.memberRepository.upsert(member.identityId, memberData(newRatePlan, customerOpt))
     } yield {
       IdentityService(IdentityApi).updateUserFieldsBasedOnUpgrade(user, form, identityRequest)
       touchpointBackend.memberRepository.metrics.putUpgrade(newTier)

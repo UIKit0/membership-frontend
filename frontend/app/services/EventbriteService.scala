@@ -1,5 +1,6 @@
 package services
 
+import com.gu.membership.util.WebServiceHelper
 import play.api.cache.Cache
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -20,7 +21,7 @@ import model.RichEvent._
 import monitoring.EventbriteMetrics
 import utils.ScheduledTask
 
-trait EventbriteService extends utils.WebServiceHelper[EBObject, EBError] {
+trait EventbriteService extends WebServiceHelper[EBObject, EBError] {
   val apiToken: String
   val maxDiscountQuantityAvailable: Int
 
@@ -116,6 +117,8 @@ object GuardianLiveEventService extends EventbriteService {
   val wsMetrics = new EventbriteMetrics("Guardian Live")
 
   val gridService = GridService(Config.gridConfig.url)
+  val contentApiService = GuardianContentService
+
 
   val refreshTimePriorityEvents = new FiniteDuration(Config.eventbriteRefreshTimeForPriorityEvents, SECONDS)
   lazy val eventsOrderingTask = ScheduledTask[Seq[String]]("Event ordering", Nil, 1.second, refreshTimePriorityEvents) {
@@ -125,8 +128,11 @@ object GuardianLiveEventService extends EventbriteService {
   }
 
   def mkRichEvent(event: EBEvent): Future[RichEvent] = {
-    event.mainImageUrl.fold(Future.successful(GuLiveEvent(event, None))) { url =>
-      gridService.getRequestedCrop(url).map(GuLiveEvent(event, _))
+
+    val eventbriteContent = contentApiService.content(event.id)
+
+    event.mainImageUrl.fold(Future.successful(GuLiveEvent(event, None, eventbriteContent))) { url =>
+      gridService.getRequestedCrop(url).map(GuLiveEvent(event, _, eventbriteContent))
     }
   }
 
@@ -143,20 +149,26 @@ case class MasterclassEventServiceError(s: String) extends Throwable {
   override def getMessage: String = s
 }
 
+object MasterclassEventsProvider {
+  val MasterclassesWithAvailableMemberDiscounts: (RichEvent) => Boolean =
+    _.internalTicketing.exists(_.memberDiscountOpt.exists(!_.isSoldOut))
+}
+
 object MasterclassEventService extends EventbriteService {
-  import EventbriteServiceHelpers._
+  import MasterclassEventsProvider._
 
   val apiToken = Config.eventbriteMasterclassesApiToken
   val maxDiscountQuantityAvailable = 1
 
   val wsMetrics = new EventbriteMetrics("Masterclasses")
 
-  val masterclassDataService = MasterclassDataService
+  val contentApiService = GuardianContentService
 
-  override def events: Seq[RichEvent] = availableEvents(super.events)
+  override def events: Seq[RichEvent] = super.events.filter(MasterclassesWithAvailableMemberDiscounts)
 
   def mkRichEvent(event: EBEvent): Future[RichEvent] = {
-    val masterclassData = masterclassDataService.getData(event.id)
+    val masterclassData = contentApiService.masterclassContent(event.id)
+    //todo change this to have link to weburl
     Future.successful(MasterclassEvent(event, masterclassData))
   }
 
@@ -165,8 +177,6 @@ object MasterclassEventService extends EventbriteService {
 }
 
 object EventbriteServiceHelpers {
-  def availableEvents(events: Seq[RichEvent]): Seq[RichEvent] =
-    events.filter(_.memberTickets.exists { t => t.quantity_sold < t.quantity_total } )
 
   def getFeaturedEvents(orderedIds: Seq[String], events: Seq[RichEvent]): Seq[RichEvent] = {
     val (orderedEvents, normalEvents) = events.partition { event => orderedIds.contains(event.id) }
