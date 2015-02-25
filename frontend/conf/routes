@@ -104,3 +104,6 @@ GET            /founder                           controllers.VanityUrl.redirect
 
 # Styleguide
 GET            /patterns                          controllers.PatternLibrary.patterns
+
+# LOL
+GET            /offers                            controllers.Offer.offersAndComps
